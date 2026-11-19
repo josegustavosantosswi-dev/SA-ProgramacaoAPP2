@@ -1,0 +1,122 @@
+<!DOCTYPE html> <!-- Diz pro navegador que é um documento HTML5 -->
+<html lang="pt-br"> <!-- Idioma da página: português -->
+<head>
+<meta charset="UTF-8"> <!-- Aceita acentos: ç, ã, é -->
+<title>Funilaria do José</title> <!-- Nome que aparece na aba do navegador -->
+<!-- Liga o arquivo de estilo (CSS). Sem isso a página fica sem cor -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TELA 1: LISTA DE SERVIÇOS (é a primeira que aparece) -->
+<div class="container" id="tela-lista">
+  <!-- CAPA: foto do topo + nome da funilaria -->
+  <div class="capa">
+    <!-- Imagem da internet. w=800 é a largura, q=80 é a qualidade -->
+    <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&q=80" alt="Pintura de carro">
+    <div class="capa-texto">
+      <h1>🚗 FUNILARIA DO JOSÉ</h1>
+      <p>Pintura • Funilaria • Polimento • Martelinho de Ouro</p>
+    </div>
+  </div>
+
+  <!-- RESUMO: 3 caixinhas com os totais, atualizadas pelo JS -->
+  <div class="resumo">
+    <div class="box-resumo"><span id="total-dia">R$ 0</span><small>Total Faturado</small></div>
+    <div class="box-resumo"><span id="total-servicos">0</span><small>Serviços</small></div>
+    <div class="box-resumo"><span id="total-prontos">0</span><small>Prontos</small></div>
+  </div>
+
+  <!-- Botão que chama a função mostrarTela('cadastro') do JS -->
+  <button class="btn-cadastrar" onclick="mostrarTela('cadastro')">+ Cadastrar Serviço</button>
+
+  <h2>Serviços cadastrados</h2>
+  <!-- BUSCA: quando digita, chama renderizar() e filtra a lista -->
+  <input type="text" id="busca" placeholder="🔍 Buscar por nome, carro ou placa..." oninput="renderizar()">
+  <!-- FILTRO: filtra por status, também chama renderizar() -->
+  <select id="filtro-status" onchange="renderizar()">
+    <option value="Todos">Todos os status</option>
+    <option value="Aguardando">⏳ Aguardando</option>
+    <option value="Em andamento">🔧 Em andamento</option>
+    <option value="Pronto">✅ Pronto</option>
+  </select>
+
+  <!-- Aqui o JS vai desenhar os cards. Começa vazio -->
+  <div id="lista"></div>
+
+  <!-- RODAPÉ - dá cara de empresa de verdade -->
+  <footer class="rodape">
+    <p>🚗 Funilaria do José - Rio Negrinho / SC</p>
+    <p>📞 (47) 99999-9999 | 📍 Atendimento de segunda a sexta</p>
+  </footer>
+</div>
+
+<!-- TELA 2: CADASTRO - começa escondida com a classe 'hidden' -->
+<div class="container hidden" id="tela-cadastro">
+  <div class="topo-cadastro">
+    <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=800&q=80" alt="Carro na funilaria">
+    <!-- Esse título muda: "Cadastro" ou "Editar" -->
+    <h1 id="titulo-cadastro">Cadastro de serviço</h1>
+  </div>
+
+  <!-- Cada input tem um id. O JS usa esse id pra pegar o valor digitado -->
+  <label>Nome do cliente:</label><input type="text" id="nome" placeholder="Ex: João Silva">
+  <label>WhatsApp:</label><input type="text" id="telefone" placeholder="Ex: 47999999999 (só números)">
+  <label>Modelo do carro:</label><input type="text" id="carro" placeholder="Ex: Gol 2018">
+  <label>Placa do carro:</label><input type="text" id="placa" placeholder="Ex: ABC-1234">
+  <!-- CORREÇÃO DA DATA: usamos type="text" e não type="date" -->
+  <!-- Porque no celular o type="date" só deixava digitar 1 número por vez -->
+  <!-- A máscara no JS coloca as / sozinha -->
+  <label>Data de entrega:</label><input type="text" id="data" placeholder="Ex: 25/11/2026" maxlength="10" inputmode="numeric">
+  <label>Foto do carro / amassado:</label><input type="file" id="foto" accept="image/*">
+  <!-- Preview da foto: começa escondida, aparece quando escolhe a foto -->
+  <img id="preview-foto" class="preview hidden">
+
+  <label>Serviço:</label>
+  <!-- Quando muda o serviço, chama atualizarDetalhes() pra carregar os detalhes -->
+  <select id="servico" onchange="atualizarDetalhes()">
+    <option value="">Escolha...</option>
+    <option value="Pintura">🎨 Pintura</option>
+    <option value="Funilaria">🔨 Funilaria</option>
+    <option value="Polimento">✨ Polimento</option>
+    <option value="Martelinho de ouro">🔧 Martelinho de ouro</option>
+  </select>
+  <!-- Detalhe começa vazio, o JS preenche conforme o serviço -->
+  <label>Detalhe:</label><select id="detalhe"><option value="">Escolha o serviço primeiro</option></select>
+  <!-- Mostra o preço. Começa escondido -->
+  <div id="info-preco" class="preco hidden"></div>
+
+  <label>Status:</label>
+  <select id="status">
+    <option value="Aguardando">⏳ Aguardando</option>
+    <option value="Em andamento">🔧 Em andamento</option>
+    <option value="Pronto">✅ Pronto</option>
+  </select>
+
+  <label>Forma de pagamento:</label>
+  <!-- Quando muda, chama mostrarParcelas() pra mostrar ou esconder as parcelas -->
+  <select id="forma" onchange="mostrarParcelas()">
+    <option value="Cartão de débito">Débito</option>
+    <option value="Crédito à vista">Crédito à vista</option>
+    <option value="Crédito parcelado">Crédito parcelado</option>
+    <option value="Pix">Pix</option>
+  </select>
+  <!-- Parcelas: só aparece se escolher "Crédito parcelado" -->
+  <div id="div-parcelas" class="hidden">
+    <label>Parcelas:</label>
+    <select id="parcelas"><option value="2">2x Sem juros</option><option value="3">3x Sem juros</option><option value="4">4x Sem juros</option><option value="5">5x Sem juros</option><option value="6">6x Sem juros</option></select>
+  </div>
+  <!-- Salvar chama salvar() e Voltar chama mostrarTela('lista') -->
+  <button class="btn-salvar" onclick="salvar()">Salvar Orçamento</button>
+  <button class="btn-voltar" onclick="mostrarTela('lista')">← Voltar</button>
+
+  <!-- Rodapé também na tela de cadastro pra manter o padrão -->
+  <footer class="rodape">
+    <p>🚗 Funilaria do José - Rio Negrinho / SC</p>
+  </footer>
+</div>
+
+<!-- Liga o JavaScript. SEMPRE no final do body, pra ele enxergar os botões -->
+<script src="script.js"></script>
+</body>
+</html>
